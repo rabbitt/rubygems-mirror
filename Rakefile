@@ -23,10 +23,12 @@ end
 namespace :mirror do
   desc "Run the Gem::Mirror::Command"
   task :update do
-    $:.unshift 'lib'
+    $:.unshift File.join(File.dirname(__FILE__), 'lib')
     require 'rubygems/mirror/command'
 
-    mirror = Gem::Mirror::Command.new
+    Gem.configuration.verbose = true
+
+    mirror = Gem::Commands::MirrorCommand.new
     mirror.execute
   end
 end
