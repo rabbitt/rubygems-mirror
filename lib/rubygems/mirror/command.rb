@@ -25,11 +25,9 @@ Multiple sources and destinations may be specified.
 
   def execute
     config_file = File.join Gem.user_home, '.gemmirrorrc'
-
     raise "Config file #{config_file} not found" unless File.exist? config_file
 
     mirrors = YAML.load_file config_file
-
     raise "Invalid config file #{config_file}" unless mirrors.respond_to? :each
 
     mirrors.each do |mir|
@@ -43,28 +41,22 @@ Multiple sources and destinations may be specified.
       raise "Not a directory: #{save_to}" unless File.directory? save_to
 
       mirror = Gem::Mirror.new(get_from, save_to)
-      
-      say "Fetching: #{mirror.from(Gem::Mirror::SPECS_FILE_Z)}"
+
+      unless not !!Gem.configuration.verbose
+        say "Fetching: #{mirror.from(Gem::Mirror::SPECS_FILE_Z)} and #{mirror.from(Gem::Mirror::LATEST_SPECS_FILE_Z)}"
+      end
       mirror.update_specs
 
-      say "Total gems: #{mirror.gems.size}"
-
+      say "Total gems: #{mirror.gems.size}" unless not !!Gem.configuration.verbose
+    
       num_to_fetch = mirror.gems_to_fetch.size
-
-      progress = ui.progress_reporter num_to_fetch,
-                                  "Fetching #{num_to_fetch} gems"
-
-      trap(:USR1) { puts "Fetched: #{progress.count}/#{num_to_fetch}" }
-
+      progress = ui.progress_reporter num_to_fetch, "Fetching #{num_to_fetch} gems"
+      trap(:USR1) { puts "Fetched: #{progress.count}/#{num_to_fetch}" unless not !!Gem.configuration.verbose }
       mirror.update_gems { progress.updated true }
 
       num_to_delete = mirror.gems_to_delete.size
-
-      progress = ui.progress_reporter num_to_delete,
-                                 "Deleting #{num_to_delete} gems"
-
-      trap(:USR1) { puts "Fetched: #{progress.count}/#{num_to_delete}" }
-
+      progress = ui.progress_reporter num_to_delete,"Deleting #{num_to_delete} gems"
+      trap(:USR1) { puts "Fetched: #{progress.count}/#{num_to_delete}" unless not !!Gem.configuration.verbose }
       mirror.delete_gems { progress.updated true }
     end
   end

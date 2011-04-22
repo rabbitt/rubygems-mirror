@@ -5,8 +5,11 @@ class Gem::Mirror
   autoload :Fetcher, 'rubygems/mirror/fetcher'
   autoload :Pool, 'rubygems/mirror/pool'
 
-  SPECS_FILE = "specs.#{Gem.marshal_version}"
-  SPECS_FILE_Z = "specs.#{Gem.marshal_version}.gz"
+  SPECS_FILE   = "specs.#{Gem.marshal_version}"
+  SPECS_FILE_Z = "#{SPECS_FILE}.gz"
+
+  LATEST_SPECS_FILE   = "latest_#{SPECS_FILE}"
+  LATEST_SPECS_FILE_Z = "latest_#{SPECS_FILE_Z}"
 
   DEFAULT_URI = 'http://production.cf.rubygems.org/'
   DEFAULT_TO = File.join(Gem.user_home, '.gem', 'mirror')
@@ -28,9 +31,14 @@ class Gem::Mirror
   end
 
   def update_specs
+    # update specs and latest_specs files
     specz = to(SPECS_FILE_Z)
     @fetcher.fetch(from(SPECS_FILE_Z), specz)
     open(to(SPECS_FILE), 'wb') { |f| f << Gem.gunzip(File.read(specz)) }
+
+    latest_specz = to(LATEST_SPECS_FILE_Z)
+    @fetcher.fetch(from(LATEST_SPECS_FILE_Z), latest_specz)
+    open(to(LATEST_SPECS_FILE), 'wb') { |f| f << Gem.gunzip(File.read(latest_specz)) }
   end
 
   def gems
