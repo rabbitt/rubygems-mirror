@@ -1,7 +1,9 @@
+require 'thread'
+
 class Gem::Mirror::Pool
   def initialize(size)
     @size = size
-    @queue = Queue.new
+    @queue = ::Queue.new
   end
 
   def job(&blk)
