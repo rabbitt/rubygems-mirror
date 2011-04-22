@@ -5,8 +5,7 @@ module Gem #:nodoc:
 end
 
 class Gem::Mirror
-  #          1.0.0
-  VERSION = '1.0.0'
+  VERSION = '1.0.1'
 end
 
 Gem::CommandManager.instance.register_command :mirror
